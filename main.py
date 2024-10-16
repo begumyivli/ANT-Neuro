@@ -3,6 +3,23 @@ from control_system import EEGControlSystem
 from sensor import Sensor
 
 def main():
+    """
+    Main control system interface for managing amplifiers and sensors.
+    
+    This function provides an interactive menu for users to perform the following actions:
+    1. Add a new amplifier with specified properties like serial number, model, manufacturer, sampling rate, and gain.
+    2. Remove an existing amplifier by its serial number.
+    3. List all amplifiers currently stored in the system, showing their details and status.
+    4. Set the gain of an amplifier to a specified value within the allowed range.
+    5. Set the sampling rate of an amplifier to one of the predefined values (256, 512, or 1024 Hz).
+    6. Toggle the power state (on/off) of an amplifier.
+    7. Search for amplifiers based on serial number, model string, or manufacturer.
+    8. Create and add a new sensor to the system, specifying its serial number, model, manufacturer, maintenance date, and position on the scalp.
+    9. Add an existing sensor to an amplifier by their serial numbers.
+    10. Remove a sensor from an amplifier.
+    11. Update the next maintenance date of either an amplifier or a sensor.
+    12. Exit the system, saving the current state of amplifiers and sensors to a file.
+    """
     control_system = EEGControlSystem()
     # Load the state on startup
     control_system.load_state()
@@ -23,6 +40,7 @@ def main():
         choice = input("Please enter your choice: ")
 
         if choice == "1":
+            # Add a new amplifier
             serial_number = input("Enter serial number: ")
             model_string = input("Enter model string: ")
             manufacturer = input("Enter manufacturer: ")
@@ -50,15 +68,18 @@ def main():
             control_system.add_amplifier(amplifier)
 
         elif choice == "2":
+            # Remove an amplifier
             serial_number = input("Enter serial number of the amplifier to remove: ")
             control_system.remove_amplifier(serial_number)
 
         elif choice == "3":
+            # List all amplifiers
             amplifiers = control_system.list_amplifiers()
             for amp in amplifiers:
                 print(amp)
 
         elif choice == "4":
+            # Set gain for an amplifier
             serial_number = input("Enter serial number of the amplifier: ")
             amplifier = control_system.find_amplifier(serial_number)
             if amplifier:
@@ -72,6 +93,7 @@ def main():
                 print("Amplifier not found.")
 
         elif choice == "5":
+            # Set sampling rate for an amplifier
             serial_number = input("Enter serial number of the amplifier: ")
             amplifier = control_system.find_amplifier(serial_number)
             if amplifier:
@@ -85,6 +107,7 @@ def main():
                 print("Amplifier not found.")
 
         elif choice == "6":
+            # Power on/off an amplifier
             serial_number = input("Enter serial number of the amplifier: ")
             amplifier = control_system.find_amplifier(serial_number)
             if amplifier:
@@ -98,6 +121,7 @@ def main():
                 print("Amplifier not found")
 
         elif choice == "7":
+            # Search for an amplifier
             print("Search by:")
             print("1. Serial Number")
             print("2. Model String")
@@ -123,7 +147,7 @@ def main():
                 print("No amplifiers found.")
 
         elif choice == "8":
-            # create a new sensor
+            # Create a new sensor
             serial_number = input("Enter sensor serial number: ")
             model_string = input("Enter sensor model string: ")
             manufacturer = input("Enter sensor manufacturer: ")
@@ -134,19 +158,19 @@ def main():
             control_system.add_sensor(sensor)
 
         elif choice == "9":
-            # add a sensor to an amplifier
+            # Add a sensor to an amplifier
             amplifier_serial = input("Enter amplifier serial number: ")
             sensor_serial = input("Enter sensor serial number: ")
             control_system.add_sensor_to_amplifier(amplifier_serial, sensor_serial)
 
         elif choice == "10":
-            # remove a sensor from an amplifier
+            # Remove a sensor from an amplifier
             amplifier_serial = input("Enter amplifier serial number: ")
             sensor_serial = input("Enter sensor serial number: ")
             control_system.remove_sensor_from_amplifier(amplifier_serial, sensor_serial)
 
         elif choice == "11":
-            # update the maintenance date
+            # Update the maintenance date
             device_type = input("Update maintenance date for Amplifier or Sensor (A/S): ").lower()
             serial_number = input("Enter the serial number of the device: ")
             new_date = input("Enter the new maintenance date (DD-MM-YYYY): ")

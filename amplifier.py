@@ -1,4 +1,17 @@
 class Amplifier:
+    """
+    Represents an EEG amplifier, managing sensors, power, gain, and sampling rate settings.
+    
+    Attributes:
+        serial_number (str): The serial number of the amplifier.
+        model_string (str): The model of the amplifier.
+        manufacturer (str): The manufacturer of the amplifier.
+        next_maintenance (str): The date of the next maintenance in 'YYYY-MM-DD' format.
+        sampling_rate (int): The sampling rate of the amplifier (256, 512, or 1024 Hz).
+        gain (int): The gain level of the amplifier, between 1 and 100.
+        sensors (list): A list of sensors associated with this amplifier.
+        is_on (bool): The power status of the amplifier, True if it's on, False otherwise.
+    """
     def __init__(self, serial_number, model_string, manufacturer, next_maintenance, sampling_rate, gain):
         self.serial_number = serial_number
         self.model_string = model_string

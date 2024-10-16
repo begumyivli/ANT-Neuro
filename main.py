@@ -4,6 +4,9 @@ from sensor import Sensor
 
 def main():
     control_system = EEGControlSystem()
+    # Load the state on startup
+    control_system.load_state()
+
     while True:
         print("1. Add Amplifier")
         print("2. Remove Amplifier")
@@ -12,8 +15,11 @@ def main():
         print("5. Set Sampling Rate")
         print("6. Power On/Off Amplifier")
         print("7. Search Amplifier")
-        print("8. Add Sensor to Amplifier")
-        print("9. Remove Sensor from Amplifier")
+        print("8. Create Sensor")
+        print("9. Add Sensor to Amplifier")
+        print("10. Remove Sensor from Amplifier")
+        print("11. Update Maintenance Date")
+        print("12. Exit from the System")
         choice = input("Please enter your choice: ")
 
         if choice == "1":
@@ -117,21 +123,54 @@ def main():
                 print("No amplifiers found.")
 
         elif choice == "8":
-            # Add a sensor to an amplifier
-            amplifier_serial = input("Enter amplifier serial number: ")
-            sensor_serial = input("Enter sensor serial number: ")
+            # create a new sensor
+            serial_number = input("Enter sensor serial number: ")
             model_string = input("Enter sensor model string: ")
             manufacturer = input("Enter sensor manufacturer: ")
             next_maintenance = input("Enter sensor next maintenance date (DD-MM-YYYY): ")
             tag = input("Enter sensor position on the scalp (e.g., 'frontal', 'occipital'): ")
-            sensor = Sensor(sensor_serial, model_string, manufacturer, next_maintenance, tag)
-            control_system.add_sensor_to_amplifier(amplifier_serial, sensor)
+
+            sensor = Sensor(serial_number, model_string, manufacturer, next_maintenance, tag)
+            control_system.add_sensor(sensor)
 
         elif choice == "9":
-            # Remove a sensor from an amplifier
+            # add a sensor to an amplifier
+            amplifier_serial = input("Enter amplifier serial number: ")
+            sensor_serial = input("Enter sensor serial number: ")
+            control_system.add_sensor_to_amplifier(amplifier_serial, sensor_serial)
+
+        elif choice == "10":
+            # remove a sensor from an amplifier
             amplifier_serial = input("Enter amplifier serial number: ")
             sensor_serial = input("Enter sensor serial number: ")
             control_system.remove_sensor_from_amplifier(amplifier_serial, sensor_serial)
+
+        elif choice == "11":
+            # update the maintenance date
+            device_type = input("Update maintenance date for Amplifier or Sensor (A/S): ").lower()
+            serial_number = input("Enter the serial number of the device: ")
+            new_date = input("Enter the new maintenance date (DD-MM-YYYY): ")
+
+            if device_type == "a":
+                amplifier = control_system.find_amplifier(serial_number)
+                if amplifier:
+                    control_system.update_maintenance_date(amplifier, new_date)
+                else:
+                    print("Amplifier not found.")
+
+            elif device_type == "s":
+                sensor = control_system.find_sensor(serial_number)
+                if sensor:
+                    control_system.update_maintenance_date(sensor, new_date)
+                else:
+                    print("Sensor not found.")
+            else:
+                print("Invalid option. Please select 'A' for Amplifier or 'S' for Sensor.")
+        
+        elif choice == "12":
+            print("Exiting and saving state...")
+            control_system.save_state()  # Save state on exit
+            break
         
         else:
             print("Invalid choice")

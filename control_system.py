@@ -1,11 +1,40 @@
+from datetime import datetime
+import pickle
 class EEGControlSystem:
     def __init__(self):
         self.amplifiers = []
+        self.sensors = []
+    
+    """ Save the current state of amplifiers and sensors to a file """
+    def save_state(self, filename="amplifier_repository.pkl"):
+        with open(filename, 'wb') as f:
+            pickle.dump({
+                "amplifiers": self.amplifiers,
+                "sensors": self.sensors
+            }, f)
+        print(f"State saved to {filename}")
+
+    """ Load the state of amplifiers and sensors from a file """
+    def load_state(self, filename="amplifier_repository.pkl"):
+        try:
+            with open(filename, 'rb') as f:
+                data = pickle.load(f)
+                self.amplifiers = data.get("amplifiers", [])
+                self.sensors = data.get("sensors", [])
+            print(f"State loaded from {filename}")
+        except FileNotFoundError:
+            print(f"No saved state found. Starting fresh.")
     
     def find_amplifier(self, serial_number):
         for amp in self.amplifiers:
             if amp.serial_number == serial_number:
                 return amp
+        return None
+
+    def find_sensor(self, serial_number):
+        for sensor in self.sensors:
+            if sensor.serial_number == serial_number:
+                return sensor
         return None
 
     def add_amplifier(self, amplifier):
@@ -38,23 +67,49 @@ class EEGControlSystem:
             results = [amp for amp in self.amplifiers if query.lower() in amp.manufacturer.lower()]
         
         return results
+    
+    def add_sensor(self, sensor):
+        self.sensors.append(sensor)
+        print(f"Amplifier with serial number {sensor.serial_number} added.")
 
-    def add_sensor_to_amplifier(self, amplifier_serial, sensor):
+    def add_sensor_to_amplifier(self, amplifier_serial, sensor_serial):
         amplifier = self.find_amplifier(amplifier_serial)
         if amplifier:
-            amplifier.add_sensor(sensor)
-            print(f"Sensor {sensor.serial_number} added to Amplifier {amplifier_serial}")
+            sensor = self.find_sensor(sensor_serial)
+            if sensor:
+                amplifier.add_sensor(sensor)
+                print(f"Sensor {sensor_serial} added to Amplifier {amplifier_serial}")
+            else:
+                print(f"Sensor {sensor_serial} not found in the system. Please add it first.")
         else:
-            print("Amplifier not found")
+            print(f"Amplifier {amplifier_serial} not found.")
 
     def remove_sensor_from_amplifier(self, amplifier_serial, sensor_serial):
         amplifier = self.find_amplifier(amplifier_serial)
         if amplifier:
-            sensor = next((s for s in amplifier.sensors if s.serial_number == sensor_serial), None)
-            if sensor:
-                amplifier.remove_sensor(sensor)
+            sensor_to_remove = None
+            for sensor in amplifier.sensors:
+                if sensor.serial_number == sensor_serial:
+                    sensor_to_remove = sensor
+                    break
+            
+            if sensor_to_remove:
+                amplifier.remove_sensor(sensor_to_remove)
                 print(f"Sensor {sensor_serial} removed from Amplifier {amplifier_serial}")
             else:
-                print("Sensor not found in this amplifier")
+                print(f"Sensor {sensor_serial} not found in this amplifier.")
         else:
-            print("Amplifier not found")
+            print(f"Amplifier {amplifier_serial} not found.")
+    
+    def update_maintenance_date(self, device, new_date):
+        try:
+            # Parse the new date and check if it's in the future
+            parsed_date = datetime.strptime(new_date, "%d-%m-%Y")
+            if parsed_date > datetime.now():
+                device.next_maintenance = new_date
+                print(f"Maintenance date updated to {new_date}.")
+            else:
+                print("Error: Maintenance date must be in the future.")
+        except ValueError:
+            print("Error: Invalid date format. Use DD-MM-YYYY.")
+
